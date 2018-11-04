@@ -5,26 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
-	"strings"
 )
-
-type user struct {
-	ID       int
-	Name     string
-	Username string
-	Email    string
-}
-
-func (u user) String() string {
-	fields := []string{
-		strconv.Itoa(u.ID),
-		u.Name,
-		u.Username,
-		u.Email,
-	}
-	return strings.Join(fields, " - ")
-}
 
 func main() {
 	url := "https://jsonplaceholder.typicode.com/users"
@@ -32,18 +13,18 @@ func main() {
 	// Makes a GET request to the specified url
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
+		fmt.Fprintln(os.Stderr, "could not request users:", err)
 		os.Exit(1)
 	}
+
+	// io.Copy(os.Stdout, resp.Body)
 
 	var users []user
 	err = json.NewDecoder(resp.Body).Decode(&users)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
+		fmt.Fprintln(os.Stderr, "could not decode users from response:", err)
 		os.Exit(1)
 	}
 
-	for _, user := range users {
-		fmt.Println(user)
-	}
+	printUsers(users)
 }
