@@ -98,6 +98,8 @@ func serve(conn net.Conn) {
 		fmt.Fprintln(bodyWriter, "  </nav>")
 		fmt.Fprintln(bodyWriter, "</body>")
 		fmt.Fprintln(bodyWriter, "</html>")
+	} else {
+		log.Println("no routes have been match")
 	}
 
 	sendOK(conn, bodyWriter)
