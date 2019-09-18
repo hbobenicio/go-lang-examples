@@ -1,0 +1,14 @@
+{{define "footer"}}
+
+<section id="footer">
+    <p>
+        You can <a href="/?header=true">show</a> / <a href="/?header=false">hide</a>
+        the header of this page with the 'header' query param
+        (use 'true' or 'false' as valid values)
+    </p>
+    <blockquote style="text-align: right; font-style: italic; font-weight: bold;">
+        "{{.}}"
+    </blockquote>
+</section>
+
+{{end}}
