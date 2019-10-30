@@ -1,0 +1,21 @@
+version: '3.7'
+services:
+  db:
+    image: postgres:11-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: golang
+      POSTGRES_USER: golang
+      POSTGRES_DB: golang
+    volumes:
+      - './migrations/:/docker-entrypoint-initdb.d/:ro'
+      # - './postgresql.conf:/var/lib/postgresql/data/postgresql.conf:ro'
+
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 8000:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin
+      PGADMIN_DEFAULT_PASSWORD: admin
