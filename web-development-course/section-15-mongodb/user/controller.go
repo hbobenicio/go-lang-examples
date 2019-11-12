@@ -60,21 +60,23 @@ func (h *Controller) Create(w http.ResponseWriter, r *http.Request) {
 
 // List é o http.HandlerFunc responsável por listar o recurso users
 func (h *Controller) List(w http.ResponseWriter, r *http.Request) {
-	dbNames, err := h.dbSession.DatabaseNames()
-	if err != nil {
+	var users []User
+
+	if err := h.dbSession.DB(repo.DBName).C("users").Find(nil).All(&users); err != nil {
 		log.Printf("error: %v\n", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(dbNames); err != nil {
+	if err := json.NewEncoder(w).Encode(users); err != nil {
 		log.Printf("error: %v\n", err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 }
 
+// Get é o http.HandlerFunc responsável por obter um user por ID
 func (h *Controller) Get(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id := params["id"]
@@ -99,4 +101,29 @@ func (h *Controller) Get(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
+}
+
+// Delete é o http.HandlerFunc responsável por remover users por ID
+func (h *Controller) Delete(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+
+	if !bson.IsObjectIdHex(id) {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	oid := bson.ObjectIdHex(id)
+
+	if err := h.dbSession.DB(repo.DBName).C("users").RemoveId(oid); err != nil {
+		if err == mgo.ErrNotFound {
+			w.WriteHeader(http.StatusNotFound)
+		} else {
+			log.Printf("error: %v\n", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

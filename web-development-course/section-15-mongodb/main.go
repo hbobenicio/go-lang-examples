@@ -24,6 +24,7 @@ func main() {
 	router.HandleFunc("/users", userController.Create).Methods("POST")
 	router.HandleFunc("/users", userController.List).Methods("GET")
 	router.HandleFunc("/users/{id}", userController.Get).Methods("GET")
+	router.HandleFunc("/users/{id}", userController.Delete).Methods("DELETE")
 	router.Handle("/favicon.ico", http.NotFoundHandler())
 
 	log.Println("server: initialized and running!")
