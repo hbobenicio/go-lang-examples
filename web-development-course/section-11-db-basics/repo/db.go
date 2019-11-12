@@ -20,13 +20,14 @@ func InitDB(cfg *config.Config) {
 
 // newDB cria uma nova instancia do pool de conexão com o banco
 func newDB(cfg *config.Config) *sql.DB {
+
 	connStr := fmt.Sprintf(
 		"dbname='%s' user='%s' password='%s' host='%s' sslmode='%s'",
 		cfg.DBName,
 		cfg.DBUser,
 		cfg.DBPassword,
 		cfg.DBHost,
-		"disable",
+		cfg.DBSSLMode,
 	)
 
 	// initialize a new connection pool
