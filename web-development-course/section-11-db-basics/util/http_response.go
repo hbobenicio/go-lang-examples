@@ -9,6 +9,6 @@ import (
 func WriteAndLogErr(w http.ResponseWriter, data []byte) {
 	_, err := w.Write(data)
 	if err != nil {
-		log.Println("write failed:", err)
+		log.Println("error: write failed:", err)
 	}
 }

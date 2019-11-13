@@ -37,3 +37,30 @@ func Create(ctx context.Context, db *sql.DB, amigo Amigo) (int64, error) {
 
 	return newAmigoID, nil
 }
+
+// Get retrieves an amigo by its ID
+func Get(ctx context.Context, db *sql.DB, id int64) (*Amigo, error) {
+	row := db.QueryRowContext(ctx, "SELECT id, name FROM amigos WHERE id = $1", id)
+
+	var amigo Amigo
+	if err := row.Scan(&amigo.ID, &amigo.Name); err != nil {
+		return nil, err
+	}
+
+	return &amigo, nil
+}
+
+// Delete remover an amigo by its ID
+func Delete(ctx context.Context, db *sql.DB, id int64) error {
+	result, err := db.ExecContext(ctx, "DELETE FROM amigos WHERE id = $1", id)
+	if err != nil {
+		return fmt.Errorf("amigos delete query: %v", err)
+	}
+
+	_, err = result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("amigos delete query: %v", err)
+	}
+
+	return nil
+}

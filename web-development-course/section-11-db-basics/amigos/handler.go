@@ -8,12 +8,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // ListHandler is the http.Handler for listing amigos
 func ListHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("GET /amigos")
-
 	amigos, err := List(r.Context(), repo.DB)
 	if err != nil {
 		errMsg := fmt.Sprintf("error: amigos list handler: %v", err)
@@ -36,10 +37,16 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 
 // CreateHandler is the http.Handler for creating new amigos
 func CreateHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("POST /amigos")
+	var newAmigo Amigo
+	if err := json.NewDecoder(r.Body).Decode(&newAmigo); err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
 
-	newAmigo := Amigo{
-		Name: "John",
+	// Some dummy validations
+	if !IsValid(&newAmigo) {
+		http.Error(w, http.StatusText(http.StatusBadRequest)+" - amigo name is required", http.StatusBadRequest)
+		return
 	}
 
 	amigoID, err := Create(r.Context(), repo.DB, newAmigo)
@@ -60,4 +67,45 @@ func CreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	util.WriteAndLogErr(w, body)
+}
+
+// GetHandler is the http.HandlerFunc for finding an amigo by ID
+func GetHandler(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+	iid, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	amigo, err := Get(r.Context(), repo.DB, int64(iid))
+	if err != nil {
+		log.Println("error:", err)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(*amigo); err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+}
+
+// DeleteHandler is the http.HandlerFunc for deleting an amigo by ID
+func DeleteHandler(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id := params["id"]
+	iid, err := strconv.Atoi(id)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	if err := Delete(r.Context(), repo.DB, int64(iid)); err != nil {
+		log.Println("error:", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }

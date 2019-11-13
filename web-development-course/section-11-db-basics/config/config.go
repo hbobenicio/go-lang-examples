@@ -8,12 +8,13 @@ import (
 
 // Config modela o objeto de configuração da aplicação
 type Config struct {
-	DBName     string `envconfig:"DB_NAME" default:"golang"`
-	DBUser     string `envconfig:"DB_USER" default:"golang"`
-	DBPassword string `envconfig:"DB_PASSWORD" default:"golang"`
-	DBHost     string `envconfig:"DB_HOST" default:"localhost"`
-	DBPort     string `envconfig:"DB_PORT" default:"5432"`
-	DBSSLMode  string `envconfig:"DB_NAME" default:"disable"`
+	ServerAddress string `envconfig:"SERVER_ADDRESS" default:":8080"`
+	DBName        string `envconfig:"DB_NAME" default:"golang"`
+	DBUser        string `envconfig:"DB_USER" default:"golang"`
+	DBPassword    string `envconfig:"DB_PASSWORD" default:"golang"`
+	DBHost        string `envconfig:"DB_HOST" default:"localhost"`
+	DBPort        string `envconfig:"DB_PORT" default:"5432"`
+	DBSSLMode     string `envconfig:"DB_NAME" default:"disable"`
 }
 
 // New cria uma nova instância "ZeroValue" de config
